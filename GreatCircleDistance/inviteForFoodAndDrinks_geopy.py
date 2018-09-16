@@ -8,11 +8,15 @@ from geopy.distance import geodesic
 from geopy.distance import vincenty 
 
 def get_distance(office_location, customer_location):
+  geodesic_dist = 0
+  vincenty_dist = 0
+  great_circle_dist = 0
   print "Calculate distance between office ", office_location, "and Customer location ", customer_location
-  #print "great_circle: ", great_circle(tuple(office_location),tuple(customer_location)).kilometers
-  #print "geodesic: ", geodesic(office_location,customer_location).kilometers
-  #print "vincenty: ", vincenty(office_location,customer_location).kilometers
-  return great_circle(tuple(office_location),tuple(customer_location)).kilometers
+  print "great circle: ", great_circle(tuple(office_location),tuple(customer_location)).kilometers
+  geodesic_dist = geodesic(office_location,customer_location).kilometers
+  vincenty_dist = vincenty(office_location,customer_location).kilometers
+  great_circle_dist = great_circle(tuple(office_location),tuple(customer_location)).kilometers
+  return geodesic_dist, vincenty_dist, great_circle_dist
 
 def get_customer_data(cli_args):
   customer_file = cli_args.customer_file
@@ -29,19 +33,21 @@ def get_customer_data(cli_args):
         continue
 
       try:
+        customer_user_id = customer["user_id"]
         customer_location = [float(customer["latitude"]), float(customer["longitude"])]
-      except KeyError as kerror:
-        print "k continue:", kerror, "for customer: ", customer
+      except (KeyError, ValueError) as kverror:
+        print "%s from \"%s\"" % (kverror, str(customer).strip())
         continue
 
-      #print "Validating Coordinates:", customer_location, "for user:", customer["name"]
       is_valid_location = validate_coordinates(customer_location)
       if is_valid_location:
-        distance = get_distance(cli_args.office_location, customer_location)
-        if distance < 100:
+        dgeodesic, dvincenty, dgreat_circle = get_distance(cli_args.office_location, customer_location)
+        if dgeodesic < 100:
           print "customer:", customer
           selected_customers[customer["user_id"]] = [customer["name"]]
-          selected_customers[customer["user_id"]].append(distance)
+          selected_customers[customer["user_id"]].append(dgeodesic)
+          selected_customers[customer["user_id"]].append(dvincenty)
+          selected_customers[customer["user_id"]].append(dgreat_circle)
           cust_count += 1
         line_count += 1
       else:
@@ -49,10 +55,10 @@ def get_customer_data(cli_args):
   print "total valid lines: ", line_count
   ordered_cust = sorted(selected_customers.keys())
   print "selected_customers:", selected_customers
-  print "%4s\t\t%-16s\t\t%-8s" % ("User ID", "Customer Name", "Distance from Office(in kms)")
+  print "%4s\t\t%-16s\t\t%-8s" % ("User ID", "Customer Name", "Distance from Office(in kms)([geodesic, vincenty,great_circle])")
   print "%4s\t%-16s\t\t%-8s" % ("________", "____________", "__________________________")
   for uid in ordered_cust:
-    print "%4s\t\t%-16s\t\t\t%-8s" % (uid, str(selected_customers[uid][0]), str(selected_customers[uid][1]))
+    print "%4s\t\t%-16s\t\t\t%-8s" % (uid, str(selected_customers[uid][0]), str(selected_customers[uid][1:]))
   print "Selected Customers count:", cust_count, "len(selected_customers):", len(selected_customers)
 
 def main(location_args):

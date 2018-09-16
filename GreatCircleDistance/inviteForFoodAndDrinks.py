@@ -20,6 +20,9 @@ def get_distance(office_location, customer_location):
   log.debug("Coordinates converted to radians phi1=%s phi2=%s lambda1=%s lambda2=%s" % (phi1, phi2, lambda1, lambda2))
 
   deltasigma = numpy.arccos(numpy.sin(phi1)*numpy.sin(phi2) + numpy.cos(phi1)*numpy.cos(phi2)*numpy.cos(delta_lambda))
+
+  # each degree on great circle of Earth is 60 nautical miles
+  # distance in kilometers
   distance = MEAN_EARTH_RADIUS * numpy.degrees(deltasigma)/60
   log.info("Distance between Office and Customer is %f" % distance)
   return distance 
