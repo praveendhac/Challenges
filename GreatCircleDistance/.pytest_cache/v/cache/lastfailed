@@ -1,5 +1,0 @@
-{
-  "test_inviteForFoodAndDrinks.py::test_process_customer_data": true, 
-  "test_inviteForFoodAndDrinks.py::test_process_customer_userid": true, 
-  "test_inviteForFoodAndDrinks.py::test_str2json_invalidjson3": true
-}
