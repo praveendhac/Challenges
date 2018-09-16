@@ -7,7 +7,7 @@ You can find the Customer list here.
 
 ⭑ Please don’t forget, your code should be production ready, clean and tested!
 
-* References:
+# References:
 - https://en.wikipedia.org/wiki/Great-circle_distance
 - https://gist.github.com/nickjevershed/6480846
 - https://introcs.cs.princeton.edu/python/12types/greatcircle.py.html
